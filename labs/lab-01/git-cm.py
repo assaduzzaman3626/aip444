@@ -95,3 +95,4 @@ for model in models:
     except Exception as error:
         print(f"Error: {error}")
 
+# Lab 01: Creative mode testing completed
