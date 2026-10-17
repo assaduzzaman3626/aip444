@@ -1,0 +1,138 @@
+$ labs/lab-04/.venv/Scripts/python.exe -B -m unittest discover -s labs/lab-05 -p test_*.py -v
+test_fork_context_uses_sha_not_branch_or_base (test_phase2.SchemaAndContextTests.test_fork_context_uses_sha_not_branch_or_base) ... ok
+test_missing_deleted_or_invalid_context_fails_closed (test_phase2.SchemaAndContextTests.test_missing_deleted_or_invalid_context_fails_closed) ... ok
+test_prompt_preserves_answers_and_escaped_context (test_phase2.SchemaAndContextTests.test_prompt_preserves_answers_and_escaped_context) ... ok
+test_sdk_tool_schema_requires_every_field (test_phase2.SchemaAndContextTests.test_sdk_tool_schema_requires_every_field) ... ok
+test_strict_required_and_nullable_arguments (test_phase2.SchemaAndContextTests.test_strict_required_and_nullable_arguments) ... ok
+test_serialized_malformed_arguments_return_error_then_recover (test_phase2.SerializedTransportTests.test_serialized_malformed_arguments_return_error_then_recover) ... ok
+test_serialized_multiple_calls_and_rounds_reach_source_tool (test_phase2.SerializedTransportTests.test_serialized_multiple_calls_and_rounds_reach_source_tool) ... ok
+test_serialized_no_tool_payload_and_safe_request_metadata (test_phase2.SerializedTransportTests.test_serialized_no_tool_payload_and_safe_request_metadata) ... ok
+test_cli_initial_file_exists_before_generate_report (test_phase2.SessionRecorderTests.test_cli_initial_file_exists_before_generate_report) ... ok
+test_no_overwrite_or_outside_lab_directory (test_phase2.SessionRecorderTests.test_no_overwrite_or_outside_lab_directory) ... ok
+test_original_answers_round_trip_and_report (test_phase2.SessionRecorderTests.test_original_answers_round_trip_and_report) ... ok
+test_possible_credentials_rejected_not_saved (test_phase2.SessionRecorderTests.test_possible_credentials_rejected_not_saved) ... ok
+test_duplicate_or_missing_call_ids_fail_without_fetch (test_phase2.ToolLoopTests.test_duplicate_or_missing_call_ids_fail_without_fetch) ... ok
+test_empty_or_malformed_provider_data_is_not_retried (test_phase2.ToolLoopTests.test_empty_or_malformed_provider_data_is_not_retried) ... ok
+test_empty_refused_and_interrupted_reports (test_phase2.ToolLoopTests.test_empty_refused_and_interrupted_reports) ... ok
+test_invalid_call_can_be_corrected_in_a_later_turn (test_phase2.ToolLoopTests.test_invalid_call_can_be_corrected_in_a_later_turn) ... ok
+test_invalid_context_prevents_provider_request (test_phase2.ToolLoopTests.test_invalid_context_prevents_provider_request) ... ok
+test_iteration_limit_stops_without_extra_request (test_phase2.ToolLoopTests.test_iteration_limit_stops_without_extra_request) ... ok
+test_learning_contract_rejects_missing_section_or_question (test_phase2.ToolLoopTests.test_learning_contract_rejects_missing_section_or_question) ... ok
+test_malformed_and_unknown_calls_return_matching_errors (test_phase2.ToolLoopTests.test_malformed_and_unknown_calls_return_matching_errors) ... ok
+test_multi_call_multi_turn_full_history_and_defaults (test_phase2.ToolLoopTests.test_multi_call_multi_turn_full_history_and_defaults) ... ok
+test_multi_file_single_call (test_phase2.ToolLoopTests.test_multi_file_single_call) ... ok
+test_no_context_needed_does_not_fetch (test_phase2.ToolLoopTests.test_no_context_needed_does_not_fetch) ... ok
+test_no_context_never_executes_tools (test_phase2.ToolLoopTests.test_no_context_never_executes_tools) ... ok
+test_phase1_errors_are_returned_without_fabricating_content (test_phase2.ToolLoopTests.test_phase1_errors_are_returned_without_fabricating_content) ... ok
+test_provider_failure_mid_loop_is_not_retried (test_phase2.ToolLoopTests.test_provider_failure_mid_loop_is_not_retried) ... ok
+test_refined_prompt_delivered_on_tool_and_no_tool_paths (test_phase2.ToolLoopTests.test_refined_prompt_delivered_on_tool_and_no_tool_paths) ... ok
+test_result_character_limit_is_explicit (test_phase2.ToolLoopTests.test_result_character_limit_is_explicit) ... ok
+test_reused_call_id_in_later_turn_is_rejected (test_phase2.ToolLoopTests.test_reused_call_id_in_later_turn_is_rejected) ... ok
+test_runtime_key_never_written_to_session_events (test_phase2.ToolLoopTests.test_runtime_key_never_written_to_session_events) ... ok
+test_session_events_capture_actual_arguments_results_and_report (test_phase2.ToolLoopTests.test_session_events_capture_actual_arguments_results_and_report) ... ok
+test_system_prompt_keeps_report_and_tool_safety_contracts (test_phase2.ToolLoopTests.test_system_prompt_keeps_report_and_tool_safety_contracts) ... ok
+test_tool_results_escape_untrusted_content_and_attributes (test_phase2.ToolLoopTests.test_tool_results_escape_untrusted_content_and_attributes) ... ok
+test_total_call_limit (test_phase2.ToolLoopTests.test_total_call_limit) ... ok
+test_unexpected_retrieval_failure_does_not_leak_details (test_phase2.ToolLoopTests.test_unexpected_retrieval_failure_does_not_leak_details) ... ok
+test_unrelated_repository_or_revision_blocked_before_any_download (test_phase2.ToolLoopTests.test_unrelated_repository_or_revision_blocked_before_any_download) ... ok
+test_unsupported_tool_type_is_returned_as_error (test_phase2.ToolLoopTests.test_unsupported_tool_type_is_returned_as_error) ... ok
+test_absent_and_null_defaults (test_tools.ReadGitHubFilesTests.test_absent_and_null_defaults) ... ok
+test_default_limit_and_upper_bound (test_tools.ReadGitHubFilesTests.test_default_limit_and_upper_bound) ... ok
+test_empty_file_list (test_tools.ReadGitHubFilesTests.test_empty_file_list) ... ok
+test_empty_files (test_tools.ReadGitHubFilesTests.test_empty_files) ... ok
+test_encoded_path_and_branch (test_tools.ReadGitHubFilesTests.test_encoded_path_and_branch) ... ok
+test_http_errors (test_tools.ReadGitHubFilesTests.test_http_errors) ... ok
+test_invalid_envelopes (test_tools.ReadGitHubFilesTests.test_invalid_envelopes) ... ok
+test_invalid_files_and_unknown_fields (test_tools.ReadGitHubFilesTests.test_invalid_files_and_unknown_fields) ... ok
+test_invalid_line_settings_do_not_download (test_tools.ReadGitHubFilesTests.test_invalid_line_settings_do_not_download) ... ok
+test_multiple_files_continue_after_errors (test_tools.ReadGitHubFilesTests.test_multiple_files_continue_after_errors) ... ok
+test_network_errors_do_not_expose_exception_details (test_tools.ReadGitHubFilesTests.test_network_errors_do_not_expose_exception_details) ... ok
+test_non_utf8_and_binary (test_tools.ReadGitHubFilesTests.test_non_utf8_and_binary) ... ok
+test_numbering_metadata_and_original_whitespace (test_tools.ReadGitHubFilesTests.test_numbering_metadata_and_original_whitespace) ... ok
+test_original_line_endings_blank_lines_and_unicode (test_tools.ReadGitHubFilesTests.test_original_line_endings_blank_lines_and_unicode) ... ok
+test_out_of_range_and_last_line (test_tools.ReadGitHubFilesTests.test_out_of_range_and_last_line) ... ok
+test_rate_limits (test_tools.ReadGitHubFilesTests.test_rate_limits) ... ok
+test_redirect_not_followed (test_tools.ReadGitHubFilesTests.test_redirect_not_followed) ... ok
+test_cli_direct_arguments (test_tools.StandaloneTests.test_cli_direct_arguments) ... ok
+test_cli_error_exit_code (test_tools.StandaloneTests.test_cli_error_exit_code) ... ok
+test_cli_json_multiple_files (test_tools.StandaloneTests.test_cli_json_multiple_files) ... ok
+
+----------------------------------------------------------------------
+Ran 57 tests in 0.231s
+
+OK
+
+Exit code: 0
+
+$ labs/lab-04/.venv/Scripts/python.exe -B labs/lab-05/pr-reader.py --test
+Analysis request 1/5 (no automatic API retries).
+Analysis request 1/5 (no automatic API retries).
+Final report received (no further tool calls).
+Analysis request 1/5 (no automatic API retries).
+Analysis request 1/5 (no automatic API retries).
+Analysis request 1/5 (no automatic API retries).
+Analysis request 1/5 (no automatic API retries).
+Analysis request 1/5 (no automatic API retries).
+Analysis request 1/5 (no automatic API retries).
+Analysis request 1/5 (no automatic API retries).
+Analysis request 1/5 (no automatic API retries).
+Analysis request 1/5 (no automatic API retries).
+Analysis request 1/5 (no automatic API retries).
+Analysis request 1/5 (no automatic API retries).
+Analysis request 1/5 (no automatic API retries).
+Analysis request 1/5 (no automatic API retries).
+Analysis request 1/5 (no automatic API retries).
+Analysis request 1/5 (no automatic API retries).
+Analysis request 1/5 (no automatic API retries).
+Final report received (no further tool calls).
+test_all_data_and_sections (__main__.BuildUserPromptTests.test_all_data_and_sections) ... ok
+test_exact_limit_and_empty_comments (__main__.BuildUserPromptTests.test_exact_limit_and_empty_comments) ... ok
+test_truncation_marker_and_overlong_diff (__main__.BuildUserPromptTests.test_truncation_marker_and_overlong_diff) ... ok
+test_untrusted_values_cannot_close_sections_or_fence (__main__.BuildUserPromptTests.test_untrusted_values_cannot_close_sections_or_fence) ... ok
+test_connection_error (__main__.FetchPrDiffTests.test_connection_error) ... ok
+test_exact_limit_is_not_truncated (__main__.FetchPrDiffTests.test_exact_limit_is_not_truncated) ... ok
+test_http_failures (__main__.FetchPrDiffTests.test_http_failures) ... ok
+test_invalid_url_does_not_download (__main__.FetchPrDiffTests.test_invalid_url_does_not_download) ... ok
+test_other_request_error (__main__.FetchPrDiffTests.test_other_request_error) ... ok
+test_successful_download (__main__.FetchPrDiffTests.test_successful_download) ... ok
+test_timeout (__main__.FetchPrDiffTests.test_timeout) ... ok
+test_truncation (__main__.FetchPrDiffTests.test_truncation) ... ok
+test_comments_success (__main__.GitHubApiTests.test_comments_success) ... ok
+test_empty_comments (__main__.GitHubApiTests.test_empty_comments) ... ok
+test_http_failures (__main__.GitHubApiTests.test_http_failures) ... ok
+test_invalid_json (__main__.GitHubApiTests.test_invalid_json) ... ok
+test_missing_description (__main__.GitHubApiTests.test_missing_description) ... ok
+test_network_failures (__main__.GitHubApiTests.test_network_failures) ... ok
+test_pull_request_success (__main__.GitHubApiTests.test_pull_request_success) ... ok
+test_rate_limits (__main__.GitHubApiTests.test_rate_limits) ... ok
+test_answers_are_preserved_exactly (__main__.InitialUnderstandingTests.test_answers_are_preserved_exactly) ... ok
+test_blank_answers_retry_the_same_question (__main__.InitialUnderstandingTests.test_blank_answers_retry_the_same_question) ... ok
+test_api_error_payload (__main__.OpenRouterTests.test_api_error_payload) ... ok
+test_configured_model (__main__.OpenRouterTests.test_configured_model) ... ok
+test_empty_and_malformed_responses (__main__.OpenRouterTests.test_empty_and_malformed_responses) ... ok
+test_http_errors (__main__.OpenRouterTests.test_http_errors) ... ok
+test_invalid_json (__main__.OpenRouterTests.test_invalid_json) ... ok
+test_missing_key (__main__.OpenRouterTests.test_missing_key) ... ok
+test_missing_or_empty_system_prompt (__main__.OpenRouterTests.test_missing_or_empty_system_prompt) ... ok
+test_network_errors (__main__.OpenRouterTests.test_network_errors) ... ok
+test_success_and_complete_system_prompt (__main__.OpenRouterTests.test_success_and_complete_system_prompt) ... ok
+test_invalid_urls (__main__.ParsePrUrlTests.test_invalid_urls) ... ok
+test_requests_toolbelt_399_regression (__main__.ParsePrUrlTests.test_requests_toolbelt_399_regression) ... ok
+test_valid_urls (__main__.ParsePrUrlTests.test_valid_urls) ... ok
+test_required_sections_and_instructions (__main__.SystemPromptTests.test_required_sections_and_instructions) ... ok
+test_cancelled_input_never_generates_report (__main__.WorkflowTests.test_cancelled_input_never_generates_report) ... ok
+test_failures_stop_workflow_without_exposing_details (__main__.WorkflowTests.test_failures_stop_workflow_without_exposing_details) ... ok
+test_full_workflow_and_order (__main__.WorkflowTests.test_full_workflow_and_order) ... ok
+test_invalid_url_stops_before_network (__main__.WorkflowTests.test_invalid_url_stops_before_network) ... ok
+test_preview_can_be_skipped (__main__.WorkflowTests.test_preview_can_be_skipped) ... ok
+test_preview_can_show_more (__main__.WorkflowTests.test_preview_can_show_more) ... ok
+test_prompt_for_url (__main__.WorkflowTests.test_prompt_for_url) ... ok
+test_requests_toolbelt_399_cli_regression (__main__.WorkflowTests.test_requests_toolbelt_399_cli_regression) ... ok
+test_save_failure (__main__.WorkflowTests.test_save_failure) ... ok
+
+----------------------------------------------------------------------
+Ran 44 tests in 0.049s
+
+OK
+
+Exit code: 0

@@ -1,0 +1,156 @@
+{
+  "source_url": "https://raw.githubusercontent.com/microsoft/vscode/main/package.json",
+  "requested_ref": "main",
+  "note": "main is a moving branch, not an immutable resolved commit SHA. Two public raw downloads; no AI calls.",
+  "tests": [
+    {
+      "case": "lines_1_to_20",
+      "elapsed_seconds": 0.271,
+      "http_status": 200,
+      "content_type": "text/plain; charset=utf-8",
+      "source_sha256": "7b816e00444f67a423056a659cf7d0ef2eebc973ad456d5ae59acf624cde73da",
+      "checks": {
+        "HTTP_200": true,
+        "raw_JSON_not_HTML": true,
+        "metadata": true,
+        "total_line_count": true,
+        "exactly_20_lines": true,
+        "returned_range_1_to_20": true,
+        "original_numbered_lines": true,
+        "numbered_content": true
+      },
+      "result": {
+        "index": 0,
+        "owner": "microsoft",
+        "repo": "vscode",
+        "path": "package.json",
+        "ref": "main",
+        "repository": "microsoft/vscode",
+        "revision": "main",
+        "total_lines": 330,
+        "requested_start_line": 1,
+        "max_lines": 20,
+        "start_line": 1,
+        "end_line": 20,
+        "lines": [
+          {
+            "number": 1,
+            "text": "{\n"
+          },
+          {
+            "number": 2,
+            "text": "  \"name\": \"code-oss-dev\",\n"
+          },
+          {
+            "number": 3,
+            "text": "  \"version\": \"1.143.0\",\n"
+          },
+          {
+            "number": 4,
+            "text": "  \"distro\": \"64d8a64ecc28ff71f38285675552ccc30f1a709d\",\n"
+          },
+          {
+            "number": 5,
+            "text": "  \"author\": {\n"
+          },
+          {
+            "number": 6,
+            "text": "    \"name\": \"Microsoft Corporation\"\n"
+          },
+          {
+            "number": 7,
+            "text": "  },\n"
+          },
+          {
+            "number": 8,
+            "text": "  \"license\": \"MIT\",\n"
+          },
+          {
+            "number": 9,
+            "text": "  \"main\": \"./out/main.js\",\n"
+          },
+          {
+            "number": 10,
+            "text": "  \"type\": \"module\",\n"
+          },
+          {
+            "number": 11,
+            "text": "  \"private\": true,\n"
+          },
+          {
+            "number": 12,
+            "text": "  \"scripts\": {\n"
+          },
+          {
+            "number": 13,
+            "text": "    \"test\": \"node -e \\\"console.error('Run a test script from the scripts folder, for example: ./scripts/test.sh --run <file>.'); process.exit(1)\\\"\",\n"
+          },
+          {
+            "number": 14,
+            "text": "    \"test-browser\": \"npx playwright install && node test/unit/browser/index.js\",\n"
+          },
+          {
+            "number": 15,
+            "text": "    \"test-browser-no-install\": \"node test/unit/browser/index.js\",\n"
+          },
+          {
+            "number": 16,
+            "text": "    \"test-node\": \"mocha test/unit/node/index.js --delay --ui=tdd --exit\",\n"
+          },
+          {
+            "number": 17,
+            "text": "    \"test-extension\": \"vscode-test\",\n"
+          },
+          {
+            "number": 18,
+            "text": "    \"test-build-scripts\": \"cd build && npm run test\",\n"
+          },
+          {
+            "number": 19,
+            "text": "    \"test-agent-host-e2e\": \"node test/integration/agentHost/runner.ts\",\n"
+          },
+          {
+            "number": 20,
+            "text": "    \"markdown-editor-package-json-check\": \"npm --prefix extensions/markdown-language-features run check-markdown-editor-package-json\",\n"
+          }
+        ],
+        "content": "1: {\n2:   \"name\": \"code-oss-dev\",\n3:   \"version\": \"1.143.0\",\n4:   \"distro\": \"64d8a64ecc28ff71f38285675552ccc30f1a709d\",\n5:   \"author\": {\n6:     \"name\": \"Microsoft Corporation\"\n7:   },\n8:   \"license\": \"MIT\",\n9:   \"main\": \"./out/main.js\",\n10:   \"type\": \"module\",\n11:   \"private\": true,\n12:   \"scripts\": {\n13:     \"test\": \"node -e \\\"console.error('Run a test script from the scripts folder, for example: ./scripts/test.sh --run <file>.'); process.exit(1)\\\"\",\n14:     \"test-browser\": \"npx playwright install && node test/unit/browser/index.js\",\n15:     \"test-browser-no-install\": \"node test/unit/browser/index.js\",\n16:     \"test-node\": \"mocha test/unit/node/index.js --delay --ui=tdd --exit\",\n17:     \"test-extension\": \"vscode-test\",\n18:     \"test-build-scripts\": \"cd build && npm run test\",\n19:     \"test-agent-host-e2e\": \"node test/integration/agentHost/runner.ts\",\n20:     \"markdown-editor-package-json-check\": \"npm --prefix extensions/markdown-language-features run check-markdown-editor-package-json\",\n"
+      }
+    },
+    {
+      "case": "out_of_range",
+      "requested_start_line": 1000330,
+      "elapsed_seconds": 0.201,
+      "http_status": 200,
+      "checks": {
+        "out_of_range_error": true,
+        "empty_selection": true,
+        "null_returned_range": true,
+        "total_count_retained": true
+      },
+      "result": {
+        "index": 0,
+        "owner": "microsoft",
+        "repo": "vscode",
+        "path": "package.json",
+        "ref": "main",
+        "repository": "microsoft/vscode",
+        "revision": "main",
+        "total_lines": 330,
+        "requested_start_line": 1000330,
+        "max_lines": 20,
+        "start_line": null,
+        "end_line": null,
+        "lines": [],
+        "content": "",
+        "error": {
+          "code": "out_of_range",
+          "message": "start_line 1000330 exceeds the file's 330 lines."
+        }
+      }
+    }
+  ],
+  "outcome": "PASS",
+  "http_attempts": 2,
+  "lab03_unchanged": true
+}

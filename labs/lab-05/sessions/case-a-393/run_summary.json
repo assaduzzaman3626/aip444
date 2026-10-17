@@ -1,0 +1,44 @@
+{
+  "pr_url": "https://github.com/requests/toolbelt/pull/393",
+  "model": "openai/gpt-4o-mini",
+  "tool_choice": "auto",
+  "exit_code": 0,
+  "answers_preserved_exactly": true,
+  "initial_save_first": true,
+  "file_context": {
+    "owner": "stb-tester",
+    "repo": "requests-toolbelt",
+    "ref": "d5df7c4ed0ffd08975b0faa7722f7931839d009e"
+  },
+  "model_requests": 1,
+  "tool_requests": [],
+  "usage": [
+    {
+      "prompt_tokens": 5333,
+      "completion_tokens": 619,
+      "total_tokens": 5952,
+      "cost": 0.00117135,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.00117135,
+        "upstream_inference_prompt_cost": 0.00079995,
+        "upstream_inference_completions_cost": 0.0003714
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 0,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  ],
+  "reported_total_cost_usd": 0.00117135,
+  "cost_available_for_all_responses": true,
+  "analysis_elapsed_seconds": 5.767,
+  "errors": []
+}

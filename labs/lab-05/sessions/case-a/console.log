@@ -1,0 +1,354 @@
+Fetching PR details, issue comments, and diff from GitHub...
+
+PR title: Raise a specific error for missing boundaries
+Description:
+## Summary
+
+Raise `MissingBoundaryException` when `MultipartDecoder` or `from_response` receives a multipart Content-Type without a recognised boundary, before body parsing. Export the exception through the existing public import layers and document it.
+
+```diff
+- AttributeError: 'MultipartDecoder' object has no attribute 'boundary'
++ MissingBoundaryException: Missing boundary parameter in multipart Content-Type
+```
+
+Closes #303.
+
+## Evidence
+
+- **Before:** Restoring only the original boundary discovery method gives six expected `AttributeError` failures and 43 passing controls.
+  **After:** All 49 decoder tests pass on Python 2.7.18, 3.7.17, Windows 3.12.10 and the installed Linux 3.12.15 wheel. Coverage includes both construction routes, error precedence, empty and duplicate boundaries, quoted parameters, encoding and public exports.
+- Both `py27-flake8` and `py37-flake8` Tox environments pass. `tox -e docs`, the CI package builds and strict Twine checks pass on baseline and candidate. The rendered decoder page and installed wheel were inspected.
+
+## Risk
+
+
+Callers catching `AttributeError` for a missing boundary must catch `MissingBoundaryException`. Recognised empty boundaries and the last recognised duplicate retain the existing parser behaviour, covered by regression controls.
+
+## Unverified
+
+Full Tox fails with the same failures on master and this branch: Python 2.7 stops on the `datetime.timezone` import, Python 3.7 and 3.9 have two X509 deprecation failures, and Python 3.12 has 25 Betamax `datetime.utcnow` failures plus the two X509 failures. The full Windows suite, macOS, PyPy, `noopenssl` and upstream CI were not run.
+
+
+
+Read the real diff below before answering. Lines beginning with + are additions; lines beginning with - are removals.
+Diff preview:
+diff --git a/AUTHORS.rst b/AUTHORS.rst
+index 797d51bd..5b16927c 100644
+--- a/AUTHORS.rst
++++ b/AUTHORS.rst
+@@ -56,4 +56,6 @@ Patches and Suggestions
+ 
+ - Chris van Marle (https://github.com/qistoph)
+ 
+-- Florence Blanc-Renaud <flo@redhat.com> (@flo-renaud)
+\ No newline at end of file
++- Florence Blanc-Renaud <flo@redhat.com> (@flo-renaud)
++
++- Ryan Duguid (@ryanduguid)
+diff --git a/HISTORY.rst b/HISTORY.rst
+index 6b6a1b25..71629dce 100644
+--- a/HISTORY.rst
++++ b/HISTORY.rst
+@@ -7,6 +7,11 @@ History
+ Fixed Bugs
+ ~~~~~~~~~~
+ 
++- Raise ``MissingBoundaryException`` instead of ``AttributeError`` when a
++  multipart Content-Type has no recognised boundary parameter, through both
++  ``MultipartDecoder`` and ``from_response``. Explicit empty boundary handling
++  is unchanged by this fix.
++
+ - Save and recover ``base_url`` in ``BaseUrlSession`` during pickle and unpickle
+ 
+ 1.0.0 -- 2023-05-01
+diff --git a/docs/decoding-data.rst b/docs/decoding-data.rst
+new file mode 100644
+index 00000000..8b10fba3
+--- /dev/null
++++ b/docs/decoding-data.rst
+@@ -0,0 +1,16 @@
++Decoding Multipart Data
++=======================
++
++Multipart Decoder
++-----------------
++
++.. autoclass:: requests_toolbelt.multipart.decoder.MultipartDecoder
++
++Decoder Exceptions
++------------------
++
++.. autoexception:: requests_toolbelt.multipart.decoder.MissingBoundaryException
++
++.. autoexception:: requests_toolbelt.multipart.decoder.NonMultipartContentTypeException
++
++.. autoexception:: requests_toolbelt.multipart.decoder.ImproperBodyPartContentException
+diff --git a/docs/index.rst b/docs/index.rst
+index 1142376e..7bd43ef5 100644
+--- a/docs/index.rst
++++ b/docs/index.rst
+@@ -32,6 +32,7 @@ Full Documentation
+ 
+     adapters
+     authentication
++    decoding-data
+     deprecated
+     downloadutils
+     dumputils
+diff --git a/requests_toolbelt/__init__.py b/requests_toolbelt/__init__.py
+index 9290cfa2..664e84fd 100644
+--- a/requests_toolbelt/__init__.py
++++ b/requests_toolbelt/__init__.py
+@@ -13,7 +13,8 @@
+ from .auth.guess import GuessAuth
+ from .multipart import (
+     MultipartEncoder, MultipartEncoderMonitor, MultipartDecoder,
+-    ImproperBodyPartContentException, NonMultipartContentTypeException
++    ImproperBodyPartContentException, NonMultipartContentTypeException,
++    MissingBoundaryException
+     )
+ from .streaming_iterator import StreamingIterator
+ from .utils.user_agent import user_agent
+@@ -29,6 +30,7 @@
+     'GuessAuth', 'MultipartEncoder', 'MultipartEncoderMonitor',
+     'MultipartDecoder', 'SSLAdapter', 'SourceAddressAdapter',
+     'StreamingIterator', 'user_agent', 'ImproperBodyPartContentException',
+-    'NonMultipartContentTypeException', '__title__', '__authors__',
++    'NonMultipartContentTypeException', 'MissingBoundaryException',
++    '__title__', '__authors__',
+     '__license__', '__copyright__', '__version__', '__version_info__',
+ ]
+diff --git a/requests_toolbelt/multipart/__init__.py b/requests_toolbelt/multipart/__init__.py
+index d3bced1c..2b2e0ac1 100644
+--- a/requests_toolbelt/multipart/__init__.py
++++ b/requests_toolbelt/multipart/__init__.py
+@@ -12,6 +12,7 @@
+ from .decoder import MultipartDecoder
+ from .decoder import ImproperBodyPartContentException
+ from .decoder import NonMultipartContentTypeException
++from .decoder import MissingBoundaryException
+ 
+ __title__ = 'requests-toolbelt'
+ __authors__ = 'Ian Cordasco, Cory Benfield'
+@@ -24,6 +25,7 @@
+     'MultipartDecoder',
+     'ImproperBodyPartContentException',
+     'NonMultipartContentTypeException',
++    'MissingBoundaryException',
+     '__title__',
+     '__authors__',
+     '__license__',
+diff --git a/requests_toolbelt/multipart/decoder.py b/requests_toolbelt/multipart/decoder.py
+index 2a0d1c46..77a24205 100644
+--- a/requests_toolbelt/multipart/decoder.py
++++ b/requests_toolbelt/multipart/decoder.py
+@@ -27,6 +27,10 @@ class NonMultipartContentTypeException(Exception):
+     pass
+ 
+ 
++class MissingBoundaryException(Exception):
++    """Raised when a multipart Content-Type has no recognised boundary."""
++
++
+ def _header_parser(string, encoding):
+     major = sys.version_info[0]
+     if major == 3:
+@@ -99,6 +103,10 @@ class MultipartDecoder(object):
+     a string, which is the name of the unicode codec to use (default is
+     ``'utf-8'``).
+ 
++    Both usage forms raise :class:`MissingBoundaryException` when no boundary
++    parameter is found in a multipart Content-Type. Non-multipart content
++    raises :class:`NonMultipartContentTypeException`.
++
+     """
+     def __init__(self, content, content_type, encoding='utf-8'):
+         #: Original Content-Type header
+@@ -117,6 +125,7 @@ def _find_boundary(self):
+             raise NonMultipartContentTypeException(
+                 "Unexpected mimetype in content-type: '{}'".format(mimetype)
+             )
++        self.boundary = None
+         for item in ct_info[1:]:
+             attr, value = _split_on_find(
+                 item,
+@@ -124,6 +133,10 @@ def _find_boundary(self):
+             )
+             if attr.lower() == 'boundary':
+                 self.boundary = encode_with(value.strip('"'), self.encoding)
++        if self.boundary is None:
++            raise MissingBoundaryException(
++                'Missing boundary parameter in multipart Content-Type'
++            )
+ 
+     @staticmethod
+     def _fix_first_part(part, boundary_marker):
+diff --git a/tests/test_multipart_decoder.py b/tests/test_multipart_decoder.py
+index e9229183..e9295cb2 100644
+--- a/tests/test_multipart_decoder.py
++++ b/tests/test_multipart_decoder.py
+@@ -8,11 +8,14 @@
+     import mock
+ import pytest
+ import requests
++import requests_toolbelt
++from requests_toolbelt import multipart
+ from requests_toolbelt.multipart.decoder import BodyPart
+ from requests_toolbelt.multipart.decoder import (
+     ImproperBodyPartContentException
+ )
+ from requests_toolbelt.multipart.decoder import MultipartDecoder
++from requests_toolbelt.multipart.decoder import MissingBoundaryException
+ from requests_toolbelt.multipart.decoder import (
+     NonMultipartContentTypeException
+ )
+@@ -191,3 +194,106 @@ def test_from_responsecaplarge(self):
+         assert decoder_2.parts[0].headers[b'Header-1'] == b'Header-Value-1'
+         assert len(decoder_2.parts[1].headers) == 0
+         assert decoder_2.parts[1].content == b'Body 2, Line 1'
++
++
++MULTIPART_BODY = (
++    b'--Test-bound\r\nContent-Disposition: form-data; name="x"\r\n'
++    b'\r\nok\r\n--Test-bound--\r\n'
++)
++
++
++@pytest.fixture(params=[False, True], ids=['constructor', 'response'])
++def decode(request):
++    def decode_content(content, content_type, encoding='utf-8'):
++        if request.param:
++            response = requests.Response()
++            response._content = content
++            if content_type is not None:
++                response.headers['Content-Type'] = content_type
++            return MultipartDecoder.from_response(response, encoding)
++        return MultipartDecoder(content, content_type, encoding)
++    return decode_content
++
++
++@pytest.mark.parametrize('content_type', [
++    'multipart/form-data',
++    'Multipart/Related; charset=utf-8',
++    'multipart/form-data; boundary',
++])
++def test_missing_boundary_fails_before_parsing_body(decode, content_type):
++    with mock.patch.object(
++        MultipartDecoder, '_parse_body', autospec=True,
++        side_effect=MultipartDecoder._parse_body
++    ) as parse_body:
++        with pytest.raises(MissingBoundaryException, match='[Bb]oundary'):
++            decode(b'not a multipart body', content_type)
++    parse_body.assert_not_called()
++
++
++@pytest.mark.parametrize('content_type', [
++    'image/jpeg', 'image/jpeg; boundary=Test-bound',
++])
++def test_non_multipart_error_precedes_boundary_discovery(decode, content_type):
++    with pytest.raises(NonMultipartContentTypeException):
++        decode(MULTIPART_BODY, content_type)
++
++
++@pytest.mark.parametrize('content_type', [
++    'multipart/form-data; boundary=Test-bound',
++    'multipart/form-data; boundary="Test-bound"',
++    'Multipart/Related; BOUNDARY=Test-bound',
++    'multipart/related; charset=utf-8; boundary="Test-bound"; ignored=1',
++    'multipart/form-data; boundary=first; boundary=Test-bound',
++    'multipart/form-data; boundary=; boundary=Test-bound',
++])
++def test_recognised_boundary_decodes_content_and_headers(decode, content_type):
++    decoder = decode(MULTIPART_BODY, content_type)
++    assert decoder.boundary == b'Test-bound'
++    assert len(decoder.parts) == 1
++    assert decoder.parts[0].content == b'ok'
++    assert decoder.parts[0].headers[b'Content-Disposition'] == (
++        b'form-data; name="x"'
++    )
++
++
++@pytest.mark.parametrize('content_type', [
++    'multipart/form-data; boundary=',
++    'multipart/form-data; boundary=""',
++    'multipart/form-data; boundary=Test-bound; boundary=',
++])
++def test_empty_boundary_retains_body_parsing(decode, content_type):
++    decoder = decode(b'', content_type)
++    assert decoder.boundary == b''
++    assert decoder.parts == ()
++    with pytest.raises(ImproperBodyPartContentException):
++        decode(MULTIPART_BODY, content_type)
++
++
++def test_missing_content_type_keeps_existing_failure(decode):
++    with pytest.raises(AttributeError):
++        decode(MULTIPART_BODY, None)
++
++
++def test_recognised_boundary_keeps_body_part_error(decode):
++    with pytest.raises(ImproperBodyPartContentException):
++        decode(b'--Test-bound\r\nno separator',
++               'multipart/form-data; boundary=Test-bound')
++
++
++def test_decoder_preserves_explicit_encoding(decode):
++    content = MULTIPART_BODY.replace(b'\r\n\r\nok\r\n', b'\r\n\r\ncaf\xe9\r\n')
++    decoder = decode(content, 'multipart/form-data; boundary=Test-bound',
++                     encoding='latin-1')
++    assert decoder.encoding == 'latin-1'
++    assert len(decoder.parts) == 1
++    assert decoder.parts[0].encoding == 'latin-1'
++    assert decoder.parts[0].content == b'caf\xe9'
++    assert decoder.parts[0].text == u'caf\xe9'
++
++
++def test_missing_boundary_exception_exports():
++    assert (requests_toolbelt.MissingBoundaryException
++            is MissingBoundaryException)
++    assert multipart.MissingBoundaryException is MissingBoundaryException
++    assert 'MissingBoundaryException' in requests_toolbelt.__all__
++    assert 'MissingBoundaryException' in multipart.__all__
+
+What do you think this PR changes and why? (2–4 sentences)
+> I think this PR improves the existing code by adding or fixing functionality and making the program work more correctly. It helps make the application more reliable and easier to maintain.
+What is one thing about this PR that you do not understand?
+> One thing I still don't understand is how this change affects the other parts of the program.
+Original answers saved before analysis: C:\Users\assad\OneDrive\Desktop\aip444\labs\lab-05\sessions\case-a\initial.json
+Generating the Markdown learning report with OpenRouter...
+Analysis request 1/5 (no automatic API retries).
+Final report received (no further tool calls).
+
+## tl;dr
+This PR introduces a `MissingBoundaryException` to improve error handling in the `MultipartDecoder` when the multipart Content-Type lacks a recognized boundary.
+
+## Your Understanding
+You correctly recognized that this PR improves the code by adding functionality and increasing reliability. However, you expressed uncertainty about how these changes affect other parts of the program. This indicates a potential gap in understanding the broader impact of error handling changes, particularly regarding how exceptions propagate through the application and how other components may need to modify their error handling in response.
+
+## Changes
+1. **`AUTHORS.rst`**: A new author, Ryan Duguid, is added to the list of contributors at the end of the file.
+   
+2. **`HISTORY.rst`**: A note is added documenting the introduction of the `MissingBoundaryException`, explaining that this specific error will be raised instead of an `AttributeError` when there is no recognized boundary in a multipart Content-Type.
+
+3. **`decoding-data.rst`**: This new file documents the functionality of the Multipart Decoder, including the newly introduced `MissingBoundaryException`. It explains that this exception will be raised during boundary detection issues.
+
+4. **`index.rst`**: This file is updated to include a reference to the new documentation file for decoding data.
+
+5. **`__init__.py`**: The `MissingBoundaryException` is imported and added to the public interface of the `requests_toolbelt` module, which makes it accessible for users of the library.
+
+6. **`decoder.py`**: The new `MissingBoundaryException` class is defined to raise an error specifically when a multipart Content-Type lacks a boundary. The existing `_find_boundary` method is modified to raise this new exception if the boundary is not found.
+
+7. **`test_multipart_decoder.py`**: Several tests are added or modified to ensure that the system raises `MissingBoundaryException` when there's no boundary. There are tests to ensure that recognized boundaries still function correctly and that non-multipart content types raise the appropriate error (`NonMultipartContentTypeException`).
+
+These changes together reinforce error handling and clear messaging for users of `MultipartDecoder`, which enhances robustness. The risk is highlighted that callers catching the `AttributeError` must now catch the new `MissingBoundaryException`.
+
+## Discussion
+The PR was created to address issue #303, aiming to improve the error handling within `MultipartDecoder` when the boundary is missing. The author notes that after the implementation, all decoder tests passed across multiple Python versions and platforms, ensuring compatibility. The coverage includes various edge cases related to the boundaries, thus improving reliability. The author also points out risks: if other parts of the program relied on catching `AttributeError`, updates will be needed to accommodate the new exception.
+
+No issue comments were provided for further discussion.
+
+## Learning
+1. How will the introduction of `MissingBoundaryException` affect existing error-handling practices in the parts of the application that utilize `MultipartDecoder`?
+2. What steps should be taken to ensure that users of the library are aware of this exception and its implications?
+3. How does the change in exception type from `AttributeError` to `MissingBoundaryException` impact legacy code that might not expect this new error?
+Report saved to C:\Users\assad\OneDrive\Desktop\aip444\labs\lab-05\pr-report.md

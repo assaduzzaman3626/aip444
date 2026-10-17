@@ -1,0 +1,199 @@
+{
+  "status": "public-read-only preparation; no model generation",
+  "cases": [
+    {
+      "case": "A",
+      "url": "https://github.com/requests/toolbelt/pull/399",
+      "metadata_http": 200,
+      "title": "Raise a specific error for missing boundaries",
+      "body": "## Summary\n\nRaise `MissingBoundaryException` when `MultipartDecoder` or `from_response` receives a multipart Content-Type without a recognised boundary, before body parsing. Export the exception through the existing public import layers and document it.\n\n```diff\n- AttributeError: 'MultipartDecoder' object has no attribute 'boundary'\n+ MissingBoundaryException: Missing boundary parameter in multipart Content-Type\n```\n\nCloses #303.\n\n## Evidence\n\n- **Before:** Restoring only the original boundary discovery method gives six expected `AttributeError` failures and 43 passing controls.\n  **After:** All 49 decoder tests pass on Python 2.7.18, 3.7.17, Windows 3.12.10 and the installed Linux 3.12.15 wheel. Coverage includes both construction routes, error precedence, empty and duplicate boundaries, quoted parameters, encoding and public exports.\n- Both `py27-flake8` and `py37-flake8` Tox environments pass. `tox -e docs`, the CI package builds and strict Twine checks pass on baseline and candidate. The rendered decoder page and installed wheel were inspected.\n\n## Risk\n\n\nCallers catching `AttributeError` for a missing boundary must catch `MissingBoundaryException`. Recognised empty boundaries and the last recognised duplicate retain the existing parser behaviour, covered by regression controls.\n\n## Unverified\n\nFull Tox fails with the same failures on master and this branch: Python 2.7 stops on the `datetime.timezone` import, Python 3.7 and 3.9 have two X509 deprecation failures, and Python 3.12 has 25 Betamax `datetime.utcnow` failures plus the two X509 failures. The full Windows suite, macOS, PyPy, `noopenssl` and upstream CI were not run.\n\n",
+      "public_head_repo": true,
+      "file_context": {
+        "owner": "ryanduguid",
+        "repo": "toolbelt",
+        "ref": "1a8c62f9992e0c96e73bb6801d1f634cad84f9d3"
+      },
+      "changed_paths": [
+        "AUTHORS.rst",
+        "HISTORY.rst",
+        "docs/decoding-data.rst",
+        "docs/index.rst",
+        "requests_toolbelt/__init__.py",
+        "requests_toolbelt/multipart/__init__.py",
+        "requests_toolbelt/multipart/decoder.py",
+        "tests/test_multipart_decoder.py"
+      ],
+      "changed_files_count": 8,
+      "patches": [
+        {
+          "path": "AUTHORS.rst",
+          "patch": "@@ -56,4 +56,6 @@ Patches and Suggestions\n \n - Chris van Marle (https://github.com/qistoph)\n \n-- Florence Blanc-Renaud <flo@redhat.com> (@flo-renaud)\n\\ No newline at end of file\n+- Florence Blanc-Renaud <flo@redhat.com> (@flo-renaud)\n+\n+- Ryan Duguid (@ryanduguid)"
+        },
+        {
+          "path": "HISTORY.rst",
+          "patch": "@@ -7,6 +7,11 @@ History\n Fixed Bugs\n ~~~~~~~~~~\n \n+- Raise ``MissingBoundaryException`` instead of ``AttributeError`` when a\n+  multipart Content-Type has no recognised boundary parameter, through both\n+  ``MultipartDecoder`` and ``from_response``. Explicit empty boundary handling\n+  is unchanged by this fix.\n+\n - Save and recover ``base_url`` in ``BaseUrlSession`` during pickle and unpickle\n \n 1.0.0 -- 2023-05-01"
+        },
+        {
+          "path": "docs/decoding-data.rst",
+          "patch": "@@ -0,0 +1,16 @@\n+Decoding Multipart Data\n+=======================\n+\n+Multipart Decoder\n+-----------------\n+\n+.. autoclass:: requests_toolbelt.multipart.decoder.MultipartDecoder\n+\n+Decoder Exceptions\n+------------------\n+\n+.. autoexception:: requests_toolbelt.multipart.decoder.MissingBoundaryException\n+\n+.. autoexception:: requests_toolbelt.multipart.decoder.NonMultipartContentTypeException\n+\n+.. autoexception:: requests_toolbelt.multipart.decoder.ImproperBodyPartContentException"
+        },
+        {
+          "path": "docs/index.rst",
+          "patch": "@@ -32,6 +32,7 @@ Full Documentation\n \n     adapters\n     authentication\n+    decoding-data\n     deprecated\n     downloadutils\n     dumputils"
+        },
+        {
+          "path": "requests_toolbelt/__init__.py",
+          "patch": "@@ -13,7 +13,8 @@\n from .auth.guess import GuessAuth\n from .multipart import (\n     MultipartEncoder, MultipartEncoderMonitor, MultipartDecoder,\n-    ImproperBodyPartContentException, NonMultipartContentTypeException\n+    ImproperBodyPartContentException, NonMultipartContentTypeException,\n+    MissingBoundaryException\n     )\n from .streaming_iterator import StreamingIterator\n from .utils.user_agent import user_agent\n@@ -29,6 +30,7 @@\n     'GuessAuth', 'MultipartEncoder', 'MultipartEncoderMonitor',\n     'MultipartDecoder', 'SSLAdapter', 'SourceAddressAdapter',\n     'StreamingIterator', 'user_agent', 'ImproperBodyPartContentException',\n-    'NonMultipartContentTypeException', '__title__', '__authors__',\n+    'NonMultipartContentTypeException', 'MissingBoundaryException',\n+    '__title__', '__authors__',\n     '__license__', '__copyright__', '__version__', '__version_info__',\n ]"
+        },
+        {
+          "path": "requests_toolbelt/multipart/__init__.py",
+          "patch": "@@ -12,6 +12,7 @@\n from .decoder import MultipartDecoder\n from .decoder import ImproperBodyPartContentException\n from .decoder import NonMultipartContentTypeException\n+from .decoder import MissingBoundaryException\n \n __title__ = 'requests-toolbelt'\n __authors__ = 'Ian Cordasco, Cory Benfield'\n@@ -24,6 +25,7 @@\n     'MultipartDecoder',\n     'ImproperBodyPartContentException',\n     'NonMultipartContentTypeException',\n+    'MissingBoundaryException',\n     '__title__',\n     '__authors__',\n     '__license__',"
+        },
+        {
+          "path": "requests_toolbelt/multipart/decoder.py",
+          "patch": "@@ -27,6 +27,10 @@ class NonMultipartContentTypeException(Exception):\n     pass\n \n \n+class MissingBoundaryException(Exception):\n+    \"\"\"Raised when a multipart Content-Type has no recognised boundary.\"\"\"\n+\n+\n def _header_parser(string, encoding):\n     major = sys.version_info[0]\n     if major == 3:\n@@ -99,6 +103,10 @@ class MultipartDecoder(object):\n     a string, which is the name of the unicode codec to use (default is\n     ``'utf-8'``).\n \n+    Both usage forms raise :class:`MissingBoundaryException` when no boundary\n+    parameter is found in a multipart Content-Type. Non-multipart content\n+    raises :class:`NonMultipartContentTypeException`.\n+\n     \"\"\"\n     def __init__(self, content, content_type, encoding='utf-8'):\n         #: Original Content-Type header\n@@ -117,13 +125,18 @@ def _find_boundary(self):\n             raise NonMultipartContentTypeException(\n                 \"Unexpected mimetype in content-type: '{}'\".format(mimetype)\n             )\n+        self.boundary = None\n         for item in ct_info[1:]:\n             attr, value = _split_on_find(\n                 item,\n                 '='\n             )\n             if attr.lower() == 'boundary':\n                 self.boundary = encode_with(value.strip('\"'), self.encoding)\n+        if self.boundary is None:\n+            raise MissingBoundaryException(\n+                'Missing boundary parameter in multipart Content-Type'\n+            )\n \n     @staticmethod\n     def _fix_first_part(part, boundary_marker):"
+        },
+        {
+          "path": "tests/test_multipart_decoder.py",
+          "patch": "@@ -8,11 +8,14 @@\n     import mock\n import pytest\n import requests\n+import requests_toolbelt\n+from requests_toolbelt import multipart\n from requests_toolbelt.multipart.decoder import BodyPart\n from requests_toolbelt.multipart.decoder import (\n     ImproperBodyPartContentException\n )\n from requests_toolbelt.multipart.decoder import MultipartDecoder\n+from requests_toolbelt.multipart.decoder import MissingBoundaryException\n from requests_toolbelt.multipart.decoder import (\n     NonMultipartContentTypeException\n )\n@@ -191,3 +194,106 @@ def test_from_responsecaplarge(self):\n         assert decoder_2.parts[0].headers[b'Header-1'] == b'Header-Value-1'\n         assert len(decoder_2.parts[1].headers) == 0\n         assert decoder_2.parts[1].content == b'Body 2, Line 1'\n+\n+\n+MULTIPART_BODY = (\n+    b'--Test-bound\\r\\nContent-Disposition: form-data; name=\"x\"\\r\\n'\n+    b'\\r\\nok\\r\\n--Test-bound--\\r\\n'\n+)\n+\n+\n+@pytest.fixture(params=[False, True], ids=['constructor', 'response'])\n+def decode(request):\n+    def decode_content(content, content_type, encoding='utf-8'):\n+        if request.param:\n+            response = requests.Response()\n+            response._content = content\n+            if content_type is not None:\n+                response.headers['Content-Type'] = content_type\n+            return MultipartDecoder.from_response(response, encoding)\n+        return MultipartDecoder(content, content_type, encoding)\n+    return decode_content\n+\n+\n+@pytest.mark.parametrize('content_type', [\n+    'multipart/form-data',\n+    'Multipart/Related; charset=utf-8',\n+    'multipart/form-data; boundary',\n+])\n+def test_missing_boundary_fails_before_parsing_body(decode, content_type):\n+    with mock.patch.object(\n+        MultipartDecoder, '_parse_body', autospec=True,\n+        side_effect=MultipartDecoder._parse_body\n+    ) as parse_body:\n+        with pytest.raises(MissingBoundaryException, match='[Bb]oundary'):\n+            decode(b'not a multipart body', content_type)\n+    parse_body.assert_not_called()\n+\n+\n+@pytest.mark.parametrize('content_type', [\n+    'image/jpeg', 'image/jpeg; boundary=Test-bound',\n+])\n+def test_non_multipart_error_precedes_boundary_discovery(decode, content_type):\n+    with pytest.raises(NonMultipartContentTypeException):\n+        decode(MULTIPART_BODY, content_type)\n+\n+\n+@pytest.mark.parametrize('content_type', [\n+    'multipart/form-data; boundary=Test-bound',\n+    'multipart/form-data; boundary=\"Test-bound\"',\n+    'Multipart/Related; BOUNDARY=Test-bound',\n+    'multipart/related; charset=utf-8; boundary=\"Test-bound\"; ignored=1',\n+    'multipart/form-data; boundary=first; boundary=Test-bound',\n+    'multipart/form-data; boundary=; boundary=Test-bound',\n+])\n+def test_recognised_boundary_decodes_content_and_headers(decode, content_type):\n+    decoder = decode(MULTIPART_BODY, content_type)\n+    assert decoder.boundary == b'Test-bound'\n+    assert len(decoder.parts) == 1\n+    assert decoder.parts[0].content == b'ok'\n+    assert decoder.parts[0].headers[b'Content-Disposition'] == (\n+        b'form-data; name=\"x\"'\n+    )\n+\n+\n+@pytest.mark.parametrize('content_type', [\n+    'multipart/form-data; boundary=',\n+    'multipart/form-data; boundary=\"\"',\n+    'multipart/form-data; boundary=Test-bound; boundary=',\n+])\n+def test_empty_boundary_retains_body_parsing(decode, content_type):\n+    decoder = decode(b'', content_type)\n+    assert decoder.boundary == b''\n+    assert decoder.parts == ()\n+    with pytest.raises(ImproperBodyPartContentException):\n+        decode(MULTIPART_BODY, content_type)\n+\n+\n+def test_missing_content_type_keeps_existing_failure(decode):\n+    with pytest.raises(AttributeError):\n+        decode(MULTIPART_BODY, None)\n+\n+\n+def test_recognised_boundary_keeps_body_part_error(decode):\n+    with pytest.raises(ImproperBodyPartContentException):\n+        decode(b'--Test-bound\\r\\nno separator',\n+               'multipart/form-data; boundary=Test-bound')\n+\n+\n+def test_decoder_preserves_explicit_encoding(decode):\n+    content = MULTIPART_BODY.replace(b'\\r\\n\\r\\nok\\r\\n', b'\\r\\n\\r\\ncaf\\xe9\\r\\n')\n+    decoder = decode(content, 'multipart/form-data; boundary=Test-bound',\n+                     encoding='latin-1')\n+    assert decoder.encoding == 'latin-1'\n+    assert len(decoder.parts) == 1\n+    assert decoder.parts[0].encoding == 'latin-1'\n+    assert decoder.parts[0].content == b'caf\\xe9'\n+    assert decoder.parts[0].text == u'caf\\xe9'\n+\n+\n+def test_missing_boundary_exception_exports():\n+    assert (requests_toolbelt.MissingBoundaryException\n+            is MissingBoundaryException)\n+    assert multipart.MissingBoundaryException is MissingBoundaryException\n+    assert 'MissingBoundaryException' in requests_toolbelt.__all__\n+    assert 'MissingBoundaryException' in multipart.__all__"
+        }
+      ],
+      "comments_http": 200,
+      "issue_comments": [],
+      "diff_http": 200,
+      "diff_characters": 10271,
+      "diff_sha256": "fc2704d2c8861fa02b232290a0caec328c430c3801b3a32442512539e10504af",
+      "raw_target": "requests_toolbelt/multipart/decoder.py",
+      "raw_url": "https://raw.githubusercontent.com/ryanduguid/toolbelt/1a8c62f9992e0c96e73bb6801d1f634cad84f9d3/requests_toolbelt/multipart/decoder.py",
+      "raw_http": 200,
+      "raw_total_lines": 169,
+      "relevant_symbol_locations": [
+        {
+          "line": 17,
+          "text": "def _split_on_find(content, bound):"
+        },
+        {
+          "line": 58,
+          "text": "    def __init__(self, content, encoding):"
+        },
+        {
+          "line": 111,
+          "text": "    def __init__(self, content, content_type, encoding='utf-8'):"
+        },
+        {
+          "line": 118,
+          "text": "        self._find_boundary()"
+        },
+        {
+          "line": 119,
+          "text": "        self._parse_body(content)"
+        },
+        {
+          "line": 121,
+          "text": "    def _find_boundary(self):"
+        },
+        {
+          "line": 166,
+          "text": "    def from_response(cls, response, encoding='utf-8'):"
+        }
+      ]
+    },
+    {
+      "case": "B",
+      "url": "https://github.com/requests/toolbelt/pull/313",
+      "metadata_http": 200,
+      "title": "Fix MultipartEncoder docstring typo",
+      "body": null,
+      "public_head_repo": true,
+      "file_context": {
+        "owner": "alexchen8",
+        "repo": "toolbelt",
+        "ref": "772ea644251acd3f0f106b42ab8287dcc7a06e69"
+      },
+      "changed_paths": [
+        "requests_toolbelt/multipart/encoder.py"
+      ],
+      "changed_files_count": 1,
+      "patches": [
+        {
+          "path": "requests_toolbelt/multipart/encoder.py",
+          "patch": "@@ -36,7 +36,7 @@ class MultipartEncoder(object):\n         from requests_toolbelt import MultipartEncoder\n \n         encoder = MultipartEncoder({'field': 'value',\n-                                    'other_field', 'other_value'})\n+                                    'other_field': 'other_value'})\n         r = requests.post('https://httpbin.org/post', data=encoder,\n                           headers={'Content-Type': encoder.content_type})\n "
+        }
+      ],
+      "comments_http": 200,
+      "issue_comments": [
+        {
+          "username": "sigmavirus24",
+          "body": "Thanks! \ud83c\udf89 ",
+          "date": "2021-08-10T00:55:03Z"
+        }
+      ],
+      "diff_http": 200,
+      "diff_characters": 660,
+      "diff_sha256": "05c1733fb0a532668bf8b4fa76a78ad624cc1ba53c8144bc4570a9d57bb1076d",
+      "raw_target": "requests_toolbelt/multipart/encoder.py",
+      "raw_url": "https://raw.githubusercontent.com/alexchen8/toolbelt/772ea644251acd3f0f106b42ab8287dcc7a06e69/requests_toolbelt/multipart/encoder.py",
+      "raw_http": 200,
+      "raw_total_lines": 655,
+      "relevant_symbol_locations": []
+    }
+  ],
+  "model": {
+    "id": "openai/gpt-4o-mini",
+    "pricing": {
+      "prompt": "0.00000015",
+      "completion": "0.0000006",
+      "input_cache_read": "0.000000075"
+    },
+    "supported_parameters": [
+      "frequency_penalty",
+      "logit_bias",
+      "logprobs",
+      "max_completion_tokens",
+      "max_tokens",
+      "prediction",
+      "presence_penalty",
+      "response_format",
+      "seed",
+      "stop",
+      "structured_outputs",
+      "temperature",
+      "tool_choice",
+      "tools",
+      "top_logprobs",
+      "top_p",
+      "web_search_options"
+    ],
+    "context_length": 128000,
+    "endpoint_catalog_http": 200,
+    "compatible_endpoints": [
+      {
+        "provider": "OpenAI",
+        "supported_parameters": [
+          "seed",
+          "max_tokens",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "frequency_penalty",
+          "logit_bias",
+          "logprobs",
+          "prediction",
+          "presence_penalty",
+          "stop",
+          "temperature",
+          "top_logprobs",
+          "top_p",
+          "web_search_options"
+        ],
+        "pricing": {
+          "prompt": "0.00000015",
+          "completion": "0.0000006",
+          "input_cache_read": "0.000000075",
+          "discount": 0
+        }
+      }
+    ]
+  }
+}

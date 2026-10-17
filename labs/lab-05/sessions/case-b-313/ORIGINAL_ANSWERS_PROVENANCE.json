@@ -1,0 +1,8 @@
+{
+  "source": "User message before live Case B session",
+  "original_answers": {
+    "changes_and_why": "I think this PR improves the encoder\u2019s rewind behavior so it can correctly restore its state and avoid unexpected encoding issues.",
+    "not_understood": "How does rewinding affect other parts of the encoder, and could it cause previously processed data to be encoded again?"
+  },
+  "disclosure": "A PowerShell stdin encoding error changed U+2019 to ? before initial.json was saved and sent. This supplemental record was created AFTER analysis; it does not replace the original initial.json or claim exact pre-analysis preservation."
+}

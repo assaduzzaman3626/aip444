@@ -1,0 +1,44 @@
+{
+  "exit_code": 0,
+  "model": "openai/gpt-4o-mini",
+  "initial_answers_exact": true,
+  "initial_save_is_first_event": true,
+  "model_requests": 1,
+  "tool_requests": 0,
+  "usage": [
+    {
+      "prompt_tokens": 4942,
+      "completion_tokens": 667,
+      "total_tokens": 5609,
+      "cost": 0.0011415,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.0011415,
+        "upstream_inference_prompt_cost": 0.0007413,
+        "upstream_inference_completions_cost": 0.0004002
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 0,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  ],
+  "reported_total_cost_usd": 0.0011415,
+  "reported_cost_available_for_every_response": true,
+  "file_context": {
+    "owner": "ryanduguid",
+    "repo": "toolbelt",
+    "ref": "1a8c62f9992e0c96e73bb6801d1f634cad84f9d3"
+  },
+  "answers_supplied": [
+    "interpretation",
+    "question"
+  ]
+}

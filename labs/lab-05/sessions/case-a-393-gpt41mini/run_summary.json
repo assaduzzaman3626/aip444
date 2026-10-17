@@ -1,0 +1,50 @@
+{
+  "pr_url": "https://github.com/requests/toolbelt/pull/393",
+  "model": "openai/gpt-4.1-mini",
+  "tool_choice": "auto",
+  "exit_code": 0,
+  "answers_source": "sessions/case-a-393/initial.json",
+  "answers_preserved_exactly": true,
+  "initial_save_first": true,
+  "system_prompt_sha256": "c432c462775f2c2907892d2bc52381f7f3d7dd3a643cb4e4d07dd040cba07a46",
+  "system_prompt_unchanged": true,
+  "file_context": {
+    "owner": "stb-tester",
+    "repo": "requests-toolbelt",
+    "ref": "d5df7c4ed0ffd08975b0faa7722f7931839d009e"
+  },
+  "model_requests": 1,
+  "tool_requests": [],
+  "response_finish_reasons": [
+    "stop"
+  ],
+  "usage": [
+    {
+      "prompt_tokens": 5331,
+      "completion_tokens": 880,
+      "total_tokens": 6211,
+      "cost": 0.0035404,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.0035404,
+        "upstream_inference_prompt_cost": 0.0021324,
+        "upstream_inference_completions_cost": 0.001408
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 0,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    }
+  ],
+  "reported_total_cost_usd": 0.0035404,
+  "cost_available_for_every_response": true,
+  "analysis_elapsed_seconds": 6.129,
+  "errors": []
+}
