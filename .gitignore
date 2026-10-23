@@ -1,1 +1,16 @@
+# Secrets
 .env
+.env.*
+!.env.example
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Generated reports and logs
+golden-report.html
+git-report.html
+golden-debug.txt
+git-debug.txt
+review-*.html
